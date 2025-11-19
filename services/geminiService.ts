@@ -1,10 +1,16 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { PlaylistResponse } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Prevent crash if API key is missing during initialization
+const apiKey = process.env.API_KEY || "";
+const ai = new GoogleGenAI({ apiKey });
 
 export const generatePlaylistCover = async (mood: string): Promise<string | null> => {
+  if (!apiKey) {
+    console.error("API Key is missing. Skipping image generation.");
+    return null;
+  }
+
   try {
     const response = await ai.models.generateImages({
       model: 'imagen-4.0-generate-001',
@@ -38,6 +44,10 @@ export const generatePlaylistFromMood = async (mood: string): Promise<PlaylistRe
   `;
 
   try {
+    if (!apiKey) {
+        throw new Error("API Key is not configured in Vercel.");
+    }
+
     const response = await ai.models.generateContent({
       model: model,
       contents: prompt,
@@ -73,8 +83,8 @@ export const generatePlaylistFromMood = async (mood: string): Promise<PlaylistRe
   } catch (error) {
     console.error("Error generating playlist:", error);
     return {
-      playlistName: "Vibe Check (Offline)",
-      description: "We couldn't reach the AI, but here's a vibe anyway.",
+      playlistName: "Vibe Check (Offline Mode)",
+      description: "We couldn't reach the AI (Check your API Key), but here's a vibe anyway.",
       songs: [
         { title: "Midnight City", artist: "M83", moodReason: "Classic energetic indie feel.", duration: "4:03" },
         { title: "The Less I Know The Better", artist: "Tame Impala", moodReason: "Smooth psychedelic groove.", duration: "3:36" },
