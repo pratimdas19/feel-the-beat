@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import { PlaylistResponse } from "../types";
 
 // Prevent crash if API key is missing during initialization
@@ -7,7 +7,7 @@ const ai = new GoogleGenAI({ apiKey });
 
 export const generatePlaylistCover = async (mood: string): Promise<string | null> => {
   if (!apiKey) {
-    console.error("API Key is missing. Skipping image generation.");
+    console.warn("API Key is missing. Skipping image generation.");
     return null;
   }
 
@@ -45,7 +45,7 @@ export const generatePlaylistFromMood = async (mood: string): Promise<PlaylistRe
 
   try {
     if (!apiKey) {
-        throw new Error("API Key is not configured in Vercel.");
+        throw new Error("API Key is not configured in Vercel Environment Variables.");
     }
 
     const response = await ai.models.generateContent({
@@ -53,6 +53,13 @@ export const generatePlaylistFromMood = async (mood: string): Promise<PlaylistRe
       contents: prompt,
       config: {
         responseMimeType: "application/json",
+        // Disable safety filters to allow all moods (e.g. sad, angry)
+        safetySettings: [
+            { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+            { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+            { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+            { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        ],
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -80,11 +87,17 @@ export const generatePlaylistFromMood = async (mood: string): Promise<PlaylistRe
     } else {
       throw new Error("No response text received from Gemini");
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating playlist:", error);
+    
+    // Provide a specific error description for the offline mode description
+    const errorMsg = error.message?.includes("API Key") 
+        ? "API Key Missing in Vercel" 
+        : "AI Connection Failed";
+
     return {
       playlistName: "Vibe Check (Offline Mode)",
-      description: "We couldn't reach the AI (Check your API Key), but here's a vibe anyway.",
+      description: `We couldn't reach the AI (${errorMsg}), but here's a vibe anyway.`,
       songs: [
         { title: "Midnight City", artist: "M83", moodReason: "Classic energetic indie feel.", duration: "4:03" },
         { title: "The Less I Know The Better", artist: "Tame Impala", moodReason: "Smooth psychedelic groove.", duration: "3:36" },
