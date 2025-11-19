@@ -1,0 +1,5 @@
+{
+  "name": "Feel The Beats",
+  "description": "An AI-powered playlist generator that curates music based on your mood using Gemini API, featuring a modern, music-centric interface.",
+  "requestFramePermissions": []
+}
