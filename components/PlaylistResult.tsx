@@ -1,20 +1,15 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { PlaylistResponse, User, Song, Platform, StreamingState } from '../types';
+import { PlaylistResponse, Song, Platform, StreamingState } from '../types';
 import { Clock, ExternalLink, Disc, Music, PlayCircle, Loader2, AlertCircle, RefreshCw, ArrowDownCircle, Play, Pause, SkipForward, X } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { fetchSongArtwork } from '../services/itunesService';
 import { streamingBackend } from '../services/streamingBackend';
 import StreamingAuthModal from './StreamingAuthModal';
 
 interface PlaylistResultProps {
   data: PlaylistResponse;
-  user: User | null;
   platform: Platform;
   onReset: () => void;
-  onSaveToLibrary: () => Promise<void>;
-  hasSavedToLibrary: boolean;
 }
 
 interface SongRowProps {
@@ -40,7 +35,6 @@ const SongRow: React.FC<SongRowProps> = ({ song, index, platform, isPlaying, onP
       await new Promise(resolve => setTimeout(resolve, index * 50));
       if (!isMounted) return;
       
-      // Using the iTunes service which now returns both art and preview
       try {
         const query = encodeURIComponent(`${song.artist} ${song.title}`);
         const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=1`);
@@ -104,25 +98,28 @@ const SongRow: React.FC<SongRowProps> = ({ song, index, platform, isPlaying, onP
                 ${isLoaded ? 'opacity-100' : 'opacity-0'}
             `}
           />
-          {/* Parallax/Depth Effect */}
           <div className={`absolute inset-0 ${pulseBgClass} mix-blend-overlay opacity-0 group-hover/img:opacity-40 group-hover/img:animate-pulse transition-opacity duration-300 pointer-events-none`} />
           
-          {/* Play Overlay with Dynamic Spring Button */}
           {previewUrl && (
               <div 
                 onClick={(e) => { e.stopPropagation(); isPlaying ? onPause() : onPlay(); }}
-                className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all duration-300 cursor-pointer z-10"
+                className={`
+                  absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center z-10 transition-opacity duration-300
+                  ${isPlaying ? 'opacity-100' : 'opacity-0 group-hover/img:opacity-100'}
+                `}
               >
-                  <div className="
-                    bg-brand-cream rounded-full p-1.5 shadow-xl
-                    transform scale-50 opacity-0 translate-y-2
-                    group-hover/img:scale-100 group-hover/img:opacity-100 group-hover/img:translate-y-0
+                  <div className={`
+                    rounded-full shadow-xl flex items-center justify-center
                     transition-all duration-300 cubic-bezier(0.175, 0.885, 0.32, 1.275)
-                  ">
+                    ${isPlaying 
+                        ? `w-6 h-6 sm:w-8 sm:h-8 ${pulseBgClass} text-white scale-100` 
+                        : 'w-6 h-6 bg-brand-cream scale-50 opacity-0 translate-y-2 group-hover/img:scale-100 group-hover/img:opacity-100 group-hover/img:translate-y-0'
+                    }
+                  `}>
                       {isPlaying ? (
-                          <Pause className={`w-3 h-3 ${iconColorClass} fill-current`} />
+                          <Pause className="w-3 h-3 sm:w-4 sm:h-4 fill-current" />
                       ) : (
-                          <Play className={`w-3 h-3 ${iconColorClass} fill-current ml-0.5`} />
+                          <Play className={`w-3 h-3 sm:w-4 sm:h-4 ${iconColorClass} fill-current ml-0.5`} />
                       )}
                   </div>
               </div>
@@ -152,11 +149,8 @@ const SongRow: React.FC<SongRowProps> = ({ song, index, platform, isPlaying, onP
 
 const PlaylistResult: React.FC<PlaylistResultProps> = ({ 
   data, 
-  user, 
   platform,
   onReset, 
-  onSaveToLibrary, 
-  hasSavedToLibrary 
 }) => {
   const [streamingState, setStreamingState] = useState<StreamingState>({ isConnected: false, provider: null });
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -164,21 +158,17 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
   const [createdUrl, setCreatedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   
-  // Audio Player State
   const [currentSongIndex, setCurrentSongIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Check if URL has params indicating auth success (Mock or Real)
   useEffect(() => {
-    // Real Backend Check
     streamingBackend.checkAuth().then(auth => {
       if (auth.authenticated) {
         setStreamingState({ isConnected: true, provider: auth.provider as Platform, profileName: auth.profileName });
       }
     });
 
-    // Handle mock auth success
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('auth_success')) {
       setStreamingState({ isConnected: true, provider: platform }); 
@@ -186,7 +176,6 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
     }
   }, [platform]);
 
-  // Audio Effect
   useEffect(() => {
       if (currentSongIndex === null) {
           if (audioRef.current) {
@@ -215,7 +204,6 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
                 audio.play();
                 setIsPlaying(true);
             } else {
-                // No preview available, skip to next or stop
                 handleSkip();
             }
           } catch (e) {
@@ -235,7 +223,6 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
       }
 
       return () => {
-          // Don't pause on unmount of effect unless index changed to null
       }
   }, [currentSongIndex, isPlaying, data.songs]);
 
@@ -278,9 +265,6 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
     try {
       const url = await streamingBackend.createPlaylist(data);
       setCreatedUrl(url);
-      if (!hasSavedToLibrary) {
-        await onSaveToLibrary();
-      }
     } catch (err) {
       setError("Failed to create playlist on provider. Try reconnecting.");
       setStreamingState({ isConnected: false, provider: null });
@@ -310,12 +294,10 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
 
   const pConfig = getPlatformConfig();
   
-  // Fallback image logic
   const coverArtSrc = data.coverArt 
     ? data.coverArt 
     : `https://picsum.photos/seed/${safePlaylistName.replace(/\s/g, '')}/400/400`;
 
-  // Standardized Button Class - Synced via Grid on tablet/mobile
   const buttonBaseClass = `
     w-full px-2 py-3 sm:px-8 sm:py-4 
     font-black text-[10px] sm:text-sm uppercase tracking-wider 
@@ -331,7 +313,8 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
     <motion.div 
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
-      className="min-h-screen pt-4 sm:pt-24 pb-8 sm:pb-12 px-2 sm:px-8 max-w-6xl mx-auto relative z-10"
+      // Updated padding-top here: pt-28
+      className="min-h-screen pt-28 sm:pt-32 pb-8 sm:pb-12 px-2 sm:px-8 max-w-6xl mx-auto relative z-10"
     >
       <StreamingAuthModal 
         isOpen={isModalOpen} 
@@ -340,11 +323,9 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
         targetPlatform={platform}
       />
 
-      {/* Floating Music Player - Portaled to Body for Fixed Positioning */}
       {currentSongIndex !== null && createPortal(
         <div className="fixed bottom-6 right-6 z-[9999] animate-in slide-in-from-bottom-10 fade-in duration-300">
           <div className="bg-brand-blue text-brand-cream p-3 sm:p-4 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.5)] border-4 border-brand-cream flex items-center gap-3 sm:gap-4 max-w-[90vw] sm:max-w-md">
-              {/* Mini Album Art */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand-cream/10 overflow-hidden border-2 border-brand-cream shrink-0 animate-spin-slow" style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}>
                  <img src={`https://picsum.photos/seed/${data.songs[currentSongIndex].title.replace(/\s/g, '')}/100/100`} className="w-full h-full object-cover" alt="art" />
               </div>
@@ -371,7 +352,7 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
                 </button>
                 <button 
                   onClick={handleSkip}
-                  className="p-2 hover:bg-brand-cream/10 rounded-full transition-colors"
+                  className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center hover:bg-brand-cream/10 rounded-full transition-colors"
                 >
                     <SkipForward className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
                 </button>
@@ -392,13 +373,11 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
         
         <div className="p-4 md:p-8 flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8 border-b-4 border-brand-blue">
             <div className="w-32 h-32 sm:w-48 sm:h-48 shadow-none border-2 sm:border-4 border-brand-text relative group shrink-0 mx-auto md:mx-0 overflow-hidden bg-brand-blue">
-              {/* Generated AI Cover Art */}
               <img 
                   src={coverArtSrc}
                   alt="Playlist Art" 
                   className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-all duration-700"
               />
-               {/* Removed AI ART Badge */}
             </div>
             
             <div className="text-center md:text-left flex-1 w-full">
@@ -416,7 +395,6 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
                     {data.description || 'No description available.'}
                 </p>
                 
-                {/* Buttons Container - Grid for Sync on Tablet/Mobile, Flex on Desktop */}
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full lg:flex lg:justify-start lg:w-auto">
                     {!createdUrl ? (
                         <button 
