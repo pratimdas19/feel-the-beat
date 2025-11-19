@@ -313,7 +313,6 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
     <motion.div 
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
-      // Updated padding-top here: pt-28
       className="min-h-screen pt-28 sm:pt-32 pb-8 sm:pb-12 px-2 sm:px-8 max-w-6xl mx-auto relative z-10"
     >
       <StreamingAuthModal 
@@ -324,7 +323,10 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
       />
 
       {currentSongIndex !== null && createPortal(
-        <div className="fixed bottom-6 right-6 z-[9999] animate-in slide-in-from-bottom-10 fade-in duration-300">
+        // Modified floating player positioning:
+        // Mobile: bottom-4 left-1/2 -translate-x-1/2 (Centered)
+        // Desktop (sm+): sm:bottom-6 sm:right-6 sm:left-auto sm:translate-x-0 (Bottom Right)
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:right-6 sm:bottom-6 z-[9999] animate-in slide-in-from-bottom-10 fade-in duration-300">
           <div className="bg-brand-blue text-brand-cream p-3 sm:p-4 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.5)] border-4 border-brand-cream flex items-center gap-3 sm:gap-4 max-w-[90vw] sm:max-w-md">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand-cream/10 overflow-hidden border-2 border-brand-cream shrink-0 animate-spin-slow" style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}>
                  <img src={`https://picsum.photos/seed/${data.songs[currentSongIndex].title.replace(/\s/g, '')}/100/100`} className="w-full h-full object-cover" alt="art" />
