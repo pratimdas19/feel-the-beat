@@ -1,8 +1,7 @@
-
-const express = require('express');
-const axios = require('axios');
-const cookieParser = require('cookie-parser');
-const crypto = require('crypto');
+import express from 'express';
+import axios from 'axios';
+import cookieParser from 'cookie-parser';
+import crypto from 'crypto';
 
 const app = express();
 // Increase limit for image uploads
@@ -24,6 +23,7 @@ const SCOPES = {
 
 // Encryption helpers for storing tokens in cookies (Stateless backend)
 const algorithm = 'aes-256-ctr';
+// Fix: Ensure secret key is correct length for AES-256
 const secretKey = crypto.createHash('sha256').update(String(process.env.COOKIE_SECRET || 'secure-random-string-for-encryption')).digest('base64').substr(0, 32);
 
 const encrypt = (text) => {
@@ -265,4 +265,4 @@ app.post('/api/create-playlist', async (req, res) => {
   }
 });
 
-module.exports = app;
+export default app;
