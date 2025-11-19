@@ -94,18 +94,18 @@ const SongRow: React.FC<SongRowProps> = ({ song, index, platform, isPlaying, onP
             alt={song.title || 'Song'}
             className={`
                 w-full h-full object-cover transform transition-transform duration-500 ease-out
-                scale-100 group-hover/img:scale-110 group-hover/img:-rotate-1
+                scale-100 group-hover:scale-110
                 ${isLoaded ? 'opacity-100' : 'opacity-0'}
             `}
           />
-          <div className={`absolute inset-0 ${pulseBgClass} mix-blend-overlay opacity-0 group-hover/img:opacity-40 group-hover/img:animate-pulse transition-opacity duration-300 pointer-events-none`} />
+          <div className={`absolute inset-0 ${pulseBgClass} mix-blend-overlay opacity-0 group-hover:opacity-40 group-hover:animate-pulse transition-opacity duration-300 pointer-events-none`} />
           
           {previewUrl && (
               <div 
                 onClick={(e) => { e.stopPropagation(); isPlaying ? onPause() : onPlay(); }}
                 className={`
                   absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center z-10 transition-opacity duration-300
-                  ${isPlaying ? 'opacity-100' : 'opacity-0 group-hover/img:opacity-100'}
+                  ${isPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                 `}
               >
                   <div className={`
@@ -113,7 +113,7 @@ const SongRow: React.FC<SongRowProps> = ({ song, index, platform, isPlaying, onP
                     transition-all duration-300 cubic-bezier(0.175, 0.885, 0.32, 1.275)
                     ${isPlaying 
                         ? `w-6 h-6 sm:w-8 sm:h-8 ${pulseBgClass} text-white scale-100` 
-                        : 'w-6 h-6 bg-brand-cream scale-50 opacity-0 translate-y-2 group-hover/img:scale-100 group-hover/img:opacity-100 group-hover/img:translate-y-0'
+                        : 'w-6 h-6 bg-brand-cream scale-50 opacity-0 translate-y-2 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-y-0'
                     }
                   `}>
                       {isPlaying ? (
