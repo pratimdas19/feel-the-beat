@@ -1,4 +1,5 @@
-import { User, SavedPlaylist, PlaylistResponse } from '../types';
+
+import { User, SavedPlaylist, PlaylistResponse, Platform } from '../types';
 
 // Keys for LocalStorage
 const USERS_KEY = 'ftb_users';
@@ -52,7 +53,10 @@ export const authService = {
 
   // --- Playlist Methods ---
 
-  savePlaylist: (user: User, mood: string, playlist: PlaylistResponse): SavedPlaylist => {
+  savePlaylist: async (user: User, mood: string, playlist: PlaylistResponse, platform: Platform = 'spotify'): Promise<SavedPlaylist> => {
+    // Simulate API Network Delay for "Transfer"
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
     const playlists = JSON.parse(localStorage.getItem(PLAYLISTS_KEY) || '[]');
     
     const newPlaylist: SavedPlaylist = {
@@ -60,7 +64,8 @@ export const authService = {
       id: generateId(),
       userId: user.id,
       createdAt: Date.now(),
-      mood
+      mood,
+      platform
     };
 
     playlists.push(newPlaylist);

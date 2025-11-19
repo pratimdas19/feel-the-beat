@@ -11,7 +11,7 @@ const features = [
   {
     icon: Music2,
     title: "Instant Curation",
-    desc: "Get a 20-song setlist perfectly flow-optimized for your vibe."
+    desc: "Get a 40-song setlist perfectly flow-optimized for your vibe."
   },
   {
     icon: Zap,

@@ -10,36 +10,32 @@
         theme: {
           extend: {
             colors: {
+              brand: {
+                blue: '#000099',      // Deep Royal Blue (Background)
+                cream: '#F4F1EA',     // Off-white/Cream (Cards)
+                red: '#FF3333',       // Accent Red
+                orange: '#FF9900',    // Accent Orange
+                green: '#00AA44',     // Accent Green (Spotify-ish but bolder)
+                text: '#000066',      // Dark blue text for inside cards
+              },
               spotify: {
                 DEFAULT: '#1DB954',
-                dark: '#191414',
-                light: '#1ed760'
               },
-              dark: {
-                900: '#121212',
-                800: '#181818',
-                700: '#282828',
+              apple: {
+                DEFAULT: '#FA243C',
+              },
+              youtube: {
+                DEFAULT: '#FF0000',
               }
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
             },
             animation: {
-              'gradient-x': 'gradient-x 15s ease infinite',
               'float': 'float 6s ease-in-out infinite',
               'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             },
             keyframes: {
-              'gradient-x': {
-                '0%, 100%': {
-                  'background-size': '200% 200%',
-                  'background-position': 'left center'
-                },
-                '50%': {
-                  'background-size': '200% 200%',
-                  'background-position': 'right center'
-                },
-              },
               'float': {
                 '0%, 100%': { transform: 'translateY(0)' },
                 '50%': { transform: 'translateY(-20px)' },
@@ -51,8 +47,8 @@
     </script>
     <style>
       body {
-        background-color: #121212;
-        color: #ffffff;
+        background-color: #000099; /* Deep Blue fallback */
+        color: #F4F1EA;
         font-family: 'Inter', sans-serif;
         overflow-x: hidden;
       }
@@ -66,12 +62,13 @@
         scrollbar-width: none;  /* Firefox */
       }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <script type="importmap">
 {
   "imports": {
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "framer-motion": "https://aistudiocdn.com/framer-motion@^12.23.24",

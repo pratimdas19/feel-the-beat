@@ -1,14 +1,18 @@
+
+export type Platform = 'spotify' | 'apple' | 'youtube';
+
 export interface Song {
   title: string;
   artist: string;
-  moodReason: string; // Why this song fits the mood
-  duration: string; // Mock duration
+  moodReason: string;
+  duration: string;
 }
 
 export interface PlaylistResponse {
   playlistName: string;
   description: string;
   songs: Song[];
+  coverArt?: string; // Base64 data URL
 }
 
 export interface User {
@@ -22,6 +26,13 @@ export interface SavedPlaylist extends PlaylistResponse {
   userId: string;
   createdAt: number;
   mood: string;
+  platform: Platform;
+}
+
+export interface StreamingState {
+  isConnected: boolean;
+  provider: Platform | null;
+  profileName?: string;
 }
 
 export enum ViewState {
