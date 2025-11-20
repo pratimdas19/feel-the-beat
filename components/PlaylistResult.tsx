@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { PlaylistResponse, Song, Platform, StreamingState } from '../types';
@@ -253,8 +252,7 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
   };
 
   const handleCreatePlaylist = async () => {
-    // Check if connected AND if the connected provider matches the current platform
-    // This prevents "Opening in Spotify" when you selected "YouTube"
+    // Fix: Check if connected AND if the connected provider matches the current platform
     if (!streamingState.isConnected || streamingState.provider !== platform) {
       setIsModalOpen(true);
       return;
@@ -274,8 +272,11 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
   };
 
   const handleConnect = (p: Platform) => {
-    // Initiate the real OAuth flow. The page will redirect, so we don't need to simulate state here.
     streamingBackend.login(p);
+    setTimeout(() => {
+        setStreamingState({ isConnected: true, provider: p, profileName: 'Demo User' });
+        setIsModalOpen(false);
+    }, 1000);
   };
   
   const safePlaylistName = data.playlistName || 'My Playlist';
