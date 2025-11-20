@@ -35,12 +35,6 @@ const Library: React.FC<LibraryProps> = ({ userId, onViewPlaylist, onRefresh }) 
 
   const getPlatformBadge = (p: Platform) => {
       switch(p) {
-        case 'apple':
-          return (
-            <div className="p-1.5 rounded-full bg-[#FA243C]/10 text-[#FA243C] hover:bg-[#FA243C] hover:text-white transition-all duration-300" title="Apple Music">
-              <Music className="w-4 h-4" />
-            </div>
-          );
         case 'youtube':
           return (
             <div className="p-1.5 rounded-full bg-[#FF0000]/10 text-[#FF0000] hover:bg-[#FF0000] hover:text-white transition-all duration-300" title="YouTube Music">

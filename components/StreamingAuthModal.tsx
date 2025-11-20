@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, Loader2, Disc, PlayCircle, Music } from 'lucide-react';
+import { X, Disc, PlayCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Platform } from '../types';
 
@@ -20,11 +20,6 @@ const StreamingAuthModal: React.FC<StreamingAuthModalProps> = ({ isOpen, onClose
           name: 'Spotify', 
           bg: 'bg-[#1DB954] hover:bg-[#1ed760] text-white', 
           icon: Disc 
-        };
-        case 'apple': return { 
-          name: 'Apple Music', 
-          bg: 'bg-[#FA243C] hover:bg-[#d41f32] text-white', 
-          icon: Music 
         };
         case 'youtube': return { 
           name: 'YouTube Music', 

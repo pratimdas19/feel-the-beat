@@ -1,5 +1,5 @@
 
-export type Platform = 'spotify' | 'apple' | 'youtube';
+export type Platform = 'spotify' | 'youtube';
 
 export interface Song {
   title: string;

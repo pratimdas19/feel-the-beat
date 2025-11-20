@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { PlaylistResponse, Song, Platform, StreamingState } from '../types';
-import { Clock, ExternalLink, Disc, Music, PlayCircle, Loader2, AlertCircle, RefreshCw, ArrowDownCircle, Play, Pause, SkipForward, X } from 'lucide-react';
+import { Clock, ExternalLink, Disc, PlayCircle, Loader2, AlertCircle, RefreshCw, ArrowDownCircle, Play, Pause, SkipForward, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { streamingBackend } from '../services/streamingBackend';
 import StreamingAuthModal from './StreamingAuthModal';
@@ -56,17 +57,14 @@ const SongRow: React.FC<SongRowProps> = ({ song, index, platform, isPlaying, onP
 
   const hoverColorClass = 
     platform === 'spotify' ? 'group-hover:text-spotify' :
-    platform === 'apple' ? 'group-hover:text-apple' :
     'group-hover:text-youtube';
 
   const pulseBgClass = 
     platform === 'spotify' ? 'bg-spotify' :
-    platform === 'apple' ? 'bg-apple' :
     'bg-youtube';
     
   const iconColorClass = 
     platform === 'spotify' ? 'text-spotify' :
-    platform === 'apple' ? 'text-apple' :
     'text-youtube';
 
   return (
@@ -286,7 +284,6 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
   const getPlatformConfig = () => {
       switch(platform) {
           case 'spotify': return { name: 'Spotify', bg: 'bg-[#1DB954]', icon: Disc, text: 'text-[#1DB954]' };
-          case 'apple': return { name: 'Apple Music', bg: 'bg-[#FA243C]', icon: Music, text: 'text-[#FA243C]' };
           case 'youtube': return { name: 'YouTube Music', bg: 'bg-[#FF0000]', icon: PlayCircle, text: 'text-[#FF0000]' };
           default: return { name: 'Spotify', bg: 'bg-brand-green', icon: Disc, text: 'text-brand-green' };
       }
@@ -323,9 +320,6 @@ const PlaylistResult: React.FC<PlaylistResultProps> = ({
       />
 
       {currentSongIndex !== null && createPortal(
-        // Modified floating player positioning:
-        // Mobile: bottom-4 left-1/2 -translate-x-1/2 (Centered)
-        // Desktop (sm+): sm:bottom-6 sm:right-6 sm:left-auto sm:translate-x-0 (Bottom Right)
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:right-6 sm:bottom-6 z-[9999] animate-in slide-in-from-bottom-10 fade-in duration-300">
           <div className="bg-brand-blue text-brand-cream p-3 sm:p-4 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.5)] border-4 border-brand-cream flex items-center gap-3 sm:gap-4 max-w-[90vw] sm:max-w-md">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand-cream/10 overflow-hidden border-2 border-brand-cream shrink-0 animate-spin-slow" style={{ animationPlayState: isPlaying ? 'running' : 'paused' }}>

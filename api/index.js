@@ -1,3 +1,4 @@
+
 import express from 'express';
 import axios from 'axios';
 import cookieParser from 'cookie-parser';
@@ -66,7 +67,7 @@ app.get('/api/auth/:provider', (req, res) => {
     return res.redirect(url);
   }
   
-  res.status(400).json({ error: 'Invalid provider or Apple Music not supported in this demo.' });
+  res.status(400).json({ error: 'Invalid provider.' });
 });
 
 // 2. Callback

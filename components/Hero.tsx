@@ -1,6 +1,6 @@
 
 import React, { useState, KeyboardEvent } from 'react';
-import { ArrowRight, Music, PlayCircle, Disc } from 'lucide-react';
+import { ArrowRight, PlayCircle, Disc } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Platform } from '../types';
 
@@ -27,14 +27,6 @@ const Hero: React.FC<HeroProps> = ({ onGenerate, isGenerating }) => {
       activeBorder: 'border-[#1DB954]',
       hoverText: 'group-hover:text-[#1DB954]',
       icon: Disc 
-    },
-    { 
-      id: 'apple' as Platform, 
-      label: 'Apple Music', 
-      activeBg: 'bg-[#FA243C]', 
-      activeBorder: 'border-[#FA243C]',
-      hoverText: 'group-hover:text-[#FA243C]',
-      icon: Music 
     },
     { 
       id: 'youtube' as Platform, 
@@ -104,7 +96,7 @@ const Hero: React.FC<HeroProps> = ({ onGenerate, isGenerating }) => {
             </div>
 
             {/* Platform Selector Buttons - Equal Size & Distinct */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-[80%] sm:w-full mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-[80%] sm:w-full mx-auto">
                 {platforms.map((p) => {
                     const isActive = platform === p.id;
                     return (
