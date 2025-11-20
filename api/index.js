@@ -12,7 +12,15 @@ app.use(cookieParser(process.env.COOKIE_SECRET || 'secure-random-string-for-encr
 // --- CONFIGURATION ---
 // We construct Redirect URIs dynamically based on the request to support both localhost and production.
 const getRedirectUri = (req, provider) => {
-    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    // 1. If APP_URL is set in Vercel (e.g. https://myapp.com), use it.
+    // This is the most reliable way to prevent mismatch errors.
+    if (process.env.APP_URL) {
+        const baseUrl = process.env.APP_URL.replace(/\/$/, '');
+        return `${baseUrl}/api/auth/${provider}/callback`;
+    }
+
+    // 2. Otherwise, construct dynamically. Force HTTPS on Vercel/Production.
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : (req.headers['x-forwarded-proto'] || 'http');
     const host = req.headers.host;
     return `${protocol}://${host}/api/auth/${provider}/callback`;
 };
