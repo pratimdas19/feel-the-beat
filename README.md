@@ -5,7 +5,7 @@
 # FEEL THE BEATS — Developer Documentation
 
 **Feel The Beats** is a personal project exploring AI-driven mood analysis and multi-platform playlist creation.  
-The application generates a **40-song playlist** from a user-provided mood prompt and creates that playlist directly inside **Spotify, Apple Music, or YouTube Music**.  
+The application generates a **40-song playlist** from a user-provided mood prompt and creates that playlist directly inside **Spotify and YouTube Music**.  
 This README focuses on architecture, implementation, API usage, and technical decisions.
 
 ---
@@ -19,7 +19,7 @@ The project is built around a **client → API → provider** architecture.
 - Components:
   - `MoodInput` — captures mood prompt
   - `PlaylistPreview` — displays generated tracklist + cover art
-  - `PlatformSelector` — Spotify / Apple Music / YouTube Music
+  - `PlatformSelector` — Spotify / YouTube Music
   - `AuthFlow` — triggers provider-specific OAuth
   - `CreatePlaylistButton` — final playlist creation action
 
@@ -33,7 +33,6 @@ The project is built around a **client → API → provider** architecture.
 
 ### **Provider Integrations**
 - **Spotify Web API**
-- **Apple Music API + MusicKit JS**
 - **YouTube Data API v3**
 
 ---
@@ -50,7 +49,6 @@ User provides mood prompt → AI model converts it into:
 ### **2. Track Retrieval**
 Based on the generated metadata:
 - Spotify: `/v1/search` with multi-tag queries  
-- Apple Music: `/v1/catalog/{storefront}/search`  
 - YouTube Music: YouTube Data API keyword search  
 
 The system composes a **40-track normalized list**, consistent across platforms.
@@ -62,13 +60,6 @@ Provider-specific login flow is triggered **before playlist creation**.
 - Scope: `playlist-modify-public`, `playlist-modify-private`
 - Flow: Authorization Code (with PKCE)
 - Token Exchange → Access Token + Refresh Token
-
-**Apple Music**
-- Client uses MusicKit for:
-  - Authorization  
-  - User token retrieval  
-  - Playlist creation in user's library
-- Requires server-generated **developer token (JWT)**
 
 **YouTube Music**
 - Uses YouTube Data API OAuth
@@ -86,9 +77,6 @@ Endpoints:
 - **Spotify**  
   - `POST /v1/users/{user_id}/playlists`
   - `POST /v1/playlists/{playlist_id}/tracks`
-
-- **Apple Music**  
-  - `POST /v1/me/library/playlists`
 
 - **YouTube**  
   - `POST /youtube/v3/playlists`
@@ -111,7 +99,6 @@ AI-based image generation system:
 
 ### **Frontend**
 - React / Next / Vite (depending on setup)
-- MusicKit JS (Apple Music)
 - OAuth popup handler
 - Tailwind / custom CSS (neon aesthetic)
 
