@@ -15,7 +15,10 @@ const getRedirectUri = (req, provider) => {
     // 1. If APP_URL is set in Vercel (e.g. https://myapp.com), use it.
     // This is the most reliable way to prevent mismatch errors.
     if (process.env.APP_URL) {
-        const baseUrl = process.env.APP_URL.replace(/\/$/, '');
+        let baseUrl = process.env.APP_URL.replace(/\/$/, ''); // Remove trailing slash
+        if (!baseUrl.startsWith('http')) {
+            baseUrl = `https://${baseUrl}`; // Force protocol if missing
+        }
         return `${baseUrl}/api/auth/${provider}/callback`;
     }
 
