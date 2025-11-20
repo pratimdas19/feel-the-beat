@@ -2,56 +2,191 @@
   <img src="./banner.png" alt="Feel The Beats Banner" width="100%">
 </p>
 
-# 🎵 FEEL THE BEATS
+# FEEL THE BEATS — Developer Documentation
 
-**Feel The Beats** is a small personal project where I explored how AI, mood interpretation, and music platform APIs can blend together to create a personalised music experience.  
-It generates a **40-song playlist** purely from a mood you type in — and builds that playlist directly inside Spotify, Apple Music, or YouTube Music.
-
----
-
-## ✨ Why I Built This
-I wanted to combine two things I love:  
-- **Understanding vibes, moods, colours, emotions**  
-- **Building interactive, functional tools with code and APIs**
-
-This project sits somewhere between creativity and engineering.  
-Not a full product — just something I built for myself to learn, improve, and experiment.
+**Feel The Beats** is a personal project exploring AI-driven mood analysis and multi-platform playlist creation.  
+The application generates a **40-song playlist** from a user-provided mood prompt and creates that playlist directly inside **Spotify, Apple Music, or YouTube Music**.  
+This README focuses on architecture, implementation, API usage, and technical decisions.
 
 ---
 
-## 🎧 What It Does
-- Takes a mood input (e.g., *soft haze*, *angry gym mode*, *rainy nostalgia*)  
-- Uses AI to translate the mood into genres, keywords, energies, and aesthetic cues  
-- Curates a **40-song playlist** across platforms  
-- Creates the playlist directly inside the user’s chosen streaming app  
-- Generates **custom playlist cover art** based on the vibe  
-- Presents everything through a clean, bold, neon-inspired UI  
+## 🏗️ Architecture Overview
+
+The project is built around a **client → API → provider** architecture.
+
+### **Client (Frontend)**
+- Built with a modern UI framework (React / Next / VibeCode system)
+- Components:
+  - `MoodInput` — captures mood prompt
+  - `PlaylistPreview` — displays generated tracklist + cover art
+  - `PlatformSelector` — Spotify / Apple Music / YouTube Music
+  - `AuthFlow` — triggers provider-specific OAuth
+  - `CreatePlaylistButton` — final playlist creation action
+
+### **API Layer**
+- Serverless API endpoints (or backend server) handle:
+  - OAuth login & token exchange
+  - Refresh token rotation
+  - Playlist creation requests
+  - AI processing and cover generation
+- All API keys and secrets stored in environment variables (`.env`)
+
+### **Provider Integrations**
+- **Spotify Web API**
+- **Apple Music API + MusicKit JS**
+- **YouTube Data API v3**
 
 ---
 
-## 🛠️ Tech & Concepts I Worked With
-- **AI prompt engineering** for mood → music mapping  
-- **Frontend design** with strong focus on simplicity and vibe consistency  
-- **API integrations**  
-  - Spotify Web API  
-  - Apple Music (MusicKit)  
-  - YouTube Music via YouTube Data API  
-- **OAuth authentication** for all platforms  
-- **Dynamic playlist cover art generation**  
-- **Interactive UI transitions** and glow effects  
-- **Stable design system** using colour psychology and mood-driven palettes  
+## ⚙️ Flow Summary
+
+### **1. Mood → AI → Music Metadata**
+User provides mood prompt → AI model converts it into:
+- Genre tags  
+- Energy/tempo descriptors  
+- Mood-based keywords  
+- Aesthetic cues for cover art
+
+### **2. Track Retrieval**
+Based on the generated metadata:
+- Spotify: `/v1/search` with multi-tag queries  
+- Apple Music: `/v1/catalog/{storefront}/search`  
+- YouTube Music: YouTube Data API keyword search  
+
+The system composes a **40-track normalized list**, consistent across platforms.
+
+### **3. OAuth Authentication**
+Provider-specific login flow is triggered **before playlist creation**.
+
+**Spotify OAuth**
+- Scope: `playlist-modify-public`, `playlist-modify-private`
+- Flow: Authorization Code (with PKCE)
+- Token Exchange → Access Token + Refresh Token
+
+**Apple Music**
+- Client uses MusicKit for:
+  - Authorization  
+  - User token retrieval  
+  - Playlist creation in user's library
+- Requires server-generated **developer token (JWT)**
+
+**YouTube Music**
+- Uses YouTube Data API OAuth
+- Scope: `https://www.googleapis.com/auth/youtube.force-ssl`
+
+### **4. Playlist Creation**
+Each provider receives:
+playlistName
+tracks[]
+coverArtURL
+description
+
+
+Endpoints:
+- **Spotify**  
+  - `POST /v1/users/{user_id}/playlists`
+  - `POST /v1/playlists/{playlist_id}/tracks`
+
+- **Apple Music**  
+  - `POST /v1/me/library/playlists`
+
+- **YouTube**  
+  - `POST /youtube/v3/playlists`
+  - `POST /youtube/v3/playlistItems`
+
+### **5. Playlist Cover Generation**
+AI-based image generation system:
+- Accepts mood prompt  
+- Produces 1:1 cover art  
+- Uses:
+  - Colour psychology  
+  - Mood descriptors  
+  - Abstract shapes or gradients  
+- Saved temporarily in storage / returned as URL  
+- Applied to playlist (Spotify doesn't support custom cover via API, so displayed client-side)
 
 ---
 
-## ⚙️ How It Works (High-Level)
-1. User enters a mood  
-2. AI interprets the mood and builds a music profile  
-3. System finds tracks that match the profile across the selected platform  
-4. Playlist of 40 songs is generated  
-5. After login, the playlist is created directly inside the selected music app  
-6. AI generates a custom cover based on the vibe  
-7. User sees the playlist + cover in a clean preview before opening it  
+## 🛠️ Tech Stack
+
+### **Frontend**
+- React / Next / Vite (depending on setup)
+- MusicKit JS (Apple Music)
+- OAuth popup handler
+- Tailwind / custom CSS (neon aesthetic)
+
+### **Backend**
+- Node.js / Serverless (Vercel / Netlify / Cloud Function)
+- OAuth token exchange handlers
+- Custom AI mood → metadata processor
+- AI image generation wrapper
+- Track normalizer across platforms
+
+### **AI Layer**
+- Mood parsing  
+- Metadata conversion  
+- Playlist sequencing  
+- Cover art generation  
 
 ---
 
-## 📂 Project Structure
+## 📦 Project Structure
+
+/src
+/components
+MoodInput.jsx
+PlatformSelector.jsx
+PlaylistPreview.jsx
+/api
+/auth
+spotify.js
+applemusic.js
+youtube.js
+/playlist
+create.js
+/services
+aiProcessor.js
+coverGenerator.js
+trackFetcher.js
+/ui
+/public
+/banner.png
+README.md
+
+---
+
+
+---
+
+
+---
+
+## 🧪 Testing
+Test scenarios:
+- Mood prompts with vastly different energies
+- OAuth failures and token expiry
+- Playlists with duplicate/invalid tracks removed
+- Cover art fallback rendering
+- Multi-platform playlist consistency
+
+---
+
+## 🔮 Future Improvements
+- Better ranking algorithm for mood → track mapping  
+- Multi-mood blending and weight adjustment  
+- More advanced cover art styling  
+- User history–based recommendations  
+- Cross-platform playlist syncing  
+
+---
+
+### 🧡 Personal Note
+This is a personal exploration project — not a production system.  
+The goal was to deepen my understanding of:
+- AI-enhanced UX  
+- Multi-provider integration  
+- OAuth 2.0 flows  
+- Playlist generation logic  
+- Clean front-end interaction design  
+
+
