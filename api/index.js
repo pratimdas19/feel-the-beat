@@ -56,6 +56,8 @@ app.get('/api/auth/:provider', (req, res) => {
   const state = crypto.randomBytes(16).toString('hex');
   const redirectUri = getRedirectUri(req, provider);
   
+  console.log(`[Auth Start] Provider: ${provider}, RedirectURI: ${redirectUri}`);
+  
   // Store state in cookie to verify on callback (CSRF protection)
   res.cookie('auth_state', state, { httpOnly: true, secure: process.env.NODE_ENV === 'production', maxAge: 300000 });
 

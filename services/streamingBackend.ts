@@ -38,6 +38,7 @@ export const streamingBackend = {
     }
     
     // Real Backend Redirect
+    // The backend handles the OAuth flow redirection
     window.location.href = `/api/auth/${provider}`;
   },
 
